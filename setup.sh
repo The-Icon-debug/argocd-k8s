@@ -380,7 +380,7 @@ install_argocd() {
 
 wait_for_argocd() {
 
-    local timeout="300s"
+    local timeout="600s"
 
     info "Waiting for all ArgoCD deployments to become ready..."
     info "Maximum wait time: ${timeout}"
