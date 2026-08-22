@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-app
+  namespace: user-app
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: user-app
+
+  template:
+    metadata:
+      labels:
+        app: user-app
+
+    spec:
+      containers:
+        - name: user-app
+          image: iconickyle/user-app:1.0.0
+
+          ports:
+            - containerPort: 4000
+
+          envFrom:
+            - configMapRef:
+                name: user-app-config
+
+            - secretRef:
+                name: user-app-secret
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 10
