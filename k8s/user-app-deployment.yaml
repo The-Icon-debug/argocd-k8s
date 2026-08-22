@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: user-app
-          image: iconickyle/user-app:1.0.0
+          image: iconickyle/user-app:v1.0.0
 
           ports:
             - containerPort: 4000
