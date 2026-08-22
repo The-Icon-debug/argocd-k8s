@@ -380,42 +380,101 @@ install_argocd() {
 
 wait_for_argocd() {
 
+    local timeout="300s"
+
     info "Waiting for ArgoCD components to become ready..."
+    info "Timeout: ${timeout}"
 
-    kubectl rollout status \
-        deployment/argocd-server \
-        -n "${ARGOCD_NAMESPACE}" \
-        --timeout=180s
+    echo
 
-    kubectl rollout status \
-        deployment/argocd-repo-server \
-        -n "${ARGOCD_NAMESPACE}" \
-        --timeout=180s
+    # --------------------------------------------------------
+    # Deployments
+    # --------------------------------------------------------
 
-    kubectl rollout status \
-        deployment/argocd-dex-server \
-        -n "${ARGOCD_NAMESPACE}" \
-        --timeout=180s
+    local deployments=(
+        "argocd-server"
+        "argocd-repo-server"
+        "argocd-dex-server"
+        "argocd-applicationset-controller"
+        "argocd-notifications-controller"
+        "argocd-redis"
+    )
 
-    kubectl rollout status \
-        deployment/argocd-applicationset-controller \
-        -n "${ARGOCD_NAMESPACE}" \
-        --timeout=180s
+    for deployment in "${deployments[@]}"; do
 
-    kubectl rollout status \
-        deployment/argocd-notifications-controller \
-        -n "${ARGOCD_NAMESPACE}" \
-        --timeout=180s
+        info "Waiting for deployment/${deployment}..."
 
-    kubectl rollout status \
+        if ! kubectl wait \
+            --namespace "${ARGOCD_NAMESPACE}" \
+            --for=condition=Available \
+            "deployment/${deployment}" \
+            --timeout="${timeout}"; then
+
+            error "Deployment '${deployment}' did not become ready."
+
+            echo
+            error "Current pod status:"
+            kubectl get pods -n "${ARGOCD_NAMESPACE}" -o wide
+
+            echo
+            error "Deployment status:"
+            kubectl get deployment "${deployment}" \
+                -n "${ARGOCD_NAMESPACE}"
+
+            echo
+            error "Recent events:"
+            kubectl get events \
+                -n "${ARGOCD_NAMESPACE}" \
+                --sort-by='.lastTimestamp' \
+                | tail -20
+
+            return 1
+        fi
+
+        success "deployment/${deployment} is ready."
+
+    done
+
+
+    # --------------------------------------------------------
+    # Application Controller
+    # --------------------------------------------------------
+
+    info "Waiting for statefulset/argocd-application-controller..."
+
+    if ! kubectl wait \
+        --namespace "${ARGOCD_NAMESPACE}" \
+        --for=jsonpath='{.status.readyReplicas}'=1 \
         statefulset/argocd-application-controller \
-        -n "${ARGOCD_NAMESPACE}" \
-        --timeout=180s
+        --timeout="${timeout}"; then
 
-    kubectl rollout status \
-        deployment/argocd-redis \
-        -n "${ARGOCD_NAMESPACE}" \
-        --timeout=180s
+        error "StatefulSet 'argocd-application-controller' did not become ready."
+
+        echo
+        error "Current pod status:"
+        kubectl get pods -n "${ARGOCD_NAMESPACE}" -o wide
+
+        echo
+        error "StatefulSet status:"
+        kubectl get statefulset argocd-application-controller \
+            -n "${ARGOCD_NAMESPACE}"
+
+        return 1
+    fi
+
+    success "statefulset/argocd-application-controller is ready."
+
+
+    # --------------------------------------------------------
+    # Final verification
+    # --------------------------------------------------------
+
+    echo
+
+    info "Final ArgoCD pod status:"
+    kubectl get pods -n "${ARGOCD_NAMESPACE}"
+
+    echo
 
     success "All ArgoCD components are ready."
 }
