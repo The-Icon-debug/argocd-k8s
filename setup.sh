@@ -561,6 +561,39 @@ start_port_forward() {
     success "ArgoCD UI port-forward is running."
 }
 
+verify_port_forward() {
+
+    local url="https://localhost:${ARGOCD_PORT}"
+
+    info "Verifying ArgoCD UI is accessible at ${url}..."
+
+    for _ in {1..15}; do
+
+        if curl \
+            --silent \
+            --insecure \
+            --output /dev/null \
+            --connect-timeout 2 \
+            "${url}"; then
+
+            success "ArgoCD UI is accessible."
+            return 0
+        fi
+
+        sleep 1
+
+    done
+
+    error "ArgoCD UI is not accessible at ${url}."
+
+    if [[ -f "${PORT_FORWARD_LOG_FILE}" ]]; then
+        echo
+        error "Port-forward log:"
+        cat "${PORT_FORWARD_LOG_FILE}"
+    fi
+
+    return 1
+}
 
 # ------------------------------------------------------------
 # Final output
@@ -661,8 +694,9 @@ main() {
     verify_argocd_crds
     wait_for_argocd
 
-    get_admin_password
     start_port_forward
+    verify_port_forward
+    get_admin_password
 
     print_summary
 }
