@@ -193,6 +193,9 @@ kubectl get secret -n user-app
 
 Create the Argo CD Application:
 
+kubectl apply is still required once to create the Argo CD Application resource. 
+After that, Argo CD takes over management of the application's Kubernetes resources.
+
 ```bash
 kubectl apply -f argocd/application.yaml
 ```
