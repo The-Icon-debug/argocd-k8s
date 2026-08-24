@@ -17,8 +17,6 @@ The primary focus of this repository is **Argo CD**, rather than application dev
 
 ## Architecture
 
-The demo follows the GitOps model:
-
 ```text
 Developer
     |
@@ -32,8 +30,8 @@ GitLab Repository
 |        Argo CD        |
 |                       |
 |  Application          |
-|  Repo Server           |
-|  Application Controller|
+|  Repo Server          |
+|  Application Controller
 +-----------+-----------+
             |
             | Kubernetes API
@@ -52,3 +50,267 @@ GitLab Repository
 |  | MongoDB        |   |
 |  +----------------+   |
 +-----------------------+
+```
+
+---
+
+## Repository Structure
+
+```text
+argocd-demo/
+│
+├── argocd/
+│   ├── application.yaml
+│   └── argocd_git_secret.yaml
+│
+├── k8s/
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── mongodb-deployment.yaml
+│   ├── mongodb-service.yaml
+│   ├── user-app-deployment.yaml
+│   └── user-app-service.yaml
+│
+├── setup.sh
+│
+├── user_app_secret.yaml
+└── README.md
+```
+
+---
+
+## Prerequisites
+
+The local lab uses:
+
+- WSL
+- Docker or Docker Desktop
+- kubectl
+- kind
+
+Verify:
+
+```bash
+docker version
+kubectl version
+kind version
+```
+
+---
+
+## Local Lab Setup
+
+The `setup.sh` script automates:
+
+- Tool validation
+- kind cluster creation
+- Argo CD namespace creation
+- Argo CD installation
+- Argo CD readiness checks
+- Initial admin password retrieval
+- Argo CD UI port-forwarding
+
+Example:
+
+```bash
+./scripts/setup.sh \
+    --cluster-name argocd-lab \
+    --k8s-version v1.36.1 \
+    --argocd-version v3.4.4 \
+    --argocd-port 8080
+```
+
+Once complete:
+
+- Cluster is ready
+- Argo CD is installed
+- UI is accessible
+- Admin credentials are displayed
+
+Open:
+
+```text
+https://localhost:8080
+```
+
+---
+
+## Private Git Repository Credentials
+
+The repository is private, so Argo CD requires Git credentials.
+
+The file:
+
+```text
+argocd/argocd_git_dummy_secret.yaml
+```
+
+contains **dummy/example values only**.
+
+Update the values locally, then apply:
+
+```bash
+kubectl apply -f argocd/argocd_git_secret.yaml
+```
+
+Verify:
+
+```bash
+kubectl get secrets -n argocd
+```
+
+---
+
+## Application Secrets
+
+The real application `secret.yaml` is intentionally **not stored in Git**.
+
+The file:
+
+```text
+user_app_dummy_secret.yaml
+```
+
+contains **dummy/example values only**.
+
+Apply the secret manually:
+
+```bash
+kubectl create namespace user-app
+kubectl apply -f user_app_secret.yaml
+```
+
+Verify:
+
+```bash
+kubectl get ns
+kubectl get secret -n user-app
+```
+
+---
+
+## Deploy the Application
+
+Create the Argo CD Application:
+
+```bash
+kubectl apply -f argocd/application.yaml
+```
+
+Verify:
+
+```bash
+kubectl get applications -n argocd
+```
+
+Expected:
+
+```text
+NAME             SYNC STATUS   HEALTH STATUS
+node-mongo-app   Synced        Healthy
+```
+
+Inspect the deployed resources:
+
+```bash
+kubectl get all -n user-app
+```
+
+---
+
+## Access the Application
+
+Port-forward the application service:
+
+```bash
+kubectl port-forward \
+    -n user-app \
+    service/user-app \
+    4000:4000
+```
+
+Open:
+
+```text
+http://localhost:4000
+```
+
+Health endpoint:
+
+```text
+http://localhost:4000/health
+```
+
+---
+
+## Updating the Application
+
+Update the replicas in:
+
+```text
+k8s/user-app-deployment.yaml
+```
+
+Commit and push:
+
+```bash
+git add .
+git commit -m "Update deployment replica count"
+git push
+```
+
+Argo CD automatically reconciles the change.
+
+---
+
+## Useful Commands
+
+Check Argo CD Applications:
+
+```bash
+kubectl get applications -n argocd
+```
+
+Inspect Application:
+
+```bash
+kubectl describe application node-mongo-app -n argocd
+```
+
+Check application resources:
+
+```bash
+kubectl get all -n user-app
+```
+
+Watch pods:
+
+```bash
+kubectl get pods -n user-app -w
+```
+
+---
+
+## Cleanup
+
+Delete the local lab:
+
+```bash
+kind delete cluster --name argocd-lab
+```
+
+The environment can then be recreated using:
+
+```bash
+./scripts/setup.sh
+```
+
+---
+
+## Notes
+
+- `k8s/` contains the Kubernetes manifests managed by Argo CD.
+- `argocd/application.yaml` defines the Argo CD Application.
+- `argocd/argocd_git_dummy_secret.yaml` contains example credentials only.
+- The real application secret is managed outside Git.
+- The repository intentionally keeps the application simple so the focus remains on Argo CD and GitOps workflows.
