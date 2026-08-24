@@ -1,1 +1,3 @@
 .argocd-lab
+argocd/argocd_git_secret.yaml
+user_app_secret.yaml
