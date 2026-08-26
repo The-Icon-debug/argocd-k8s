@@ -16,8 +16,6 @@ namespace: user-app
 │     ├── Deployment
 │     │
 │     ├── Service
-│     │
-│     └── PersistentVolumeClaim
 │
 └── Node.js
       │

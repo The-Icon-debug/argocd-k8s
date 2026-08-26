@@ -8,8 +8,6 @@ setup.sh
    │
    ├── Validate Docker
    │
-   ├── Install kind if missing
-   │
    ├── Create kind cluster
    │
    ├── Create argocd namespace
