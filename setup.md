@@ -1,34 +1,22 @@
 setup.sh
-   │
-   ├── Check prerequisites
-   │      ├── docker
-   │      ├── kubectl
-   │      ├── kind
-   │      └── curl
-   │
-   ├── Validate Docker
-   │
-   ├── Create kind cluster
-   │
-   ├── Create argocd namespace
-   │
-   ├── Install ArgoCD
-   │
-   ├── Wait for ArgoCD
-   │
-   └── Display access information
-              │
-              ▼
-         ArgoCD ready
-              │
-              ▼
-       GitLab repository
-              │
-              ▼
-       Raw K8s manifests
-              │
-              ▼
-       ArgoCD Application
-              │
-              ▼
-       Node.js + MongoDB
+    │
+    ├── Validate tools
+    ├── Create kind cluster
+    ├── Install Argo CD
+    ├── Wait for Argo CD
+    ├── Retrieve admin credentials
+    └── Start Argo CD port-forward
+             │
+             ▼
+        Argo CD ready
+             │
+             ▼
+deploy.sh
+    │
+    ├── Configure Git credentials
+    ├── Create user-app namespace
+    ├── Apply application secret
+    ├── Apply Argo CD Application
+    ├── Wait for application
+    ├── Verify workloads
+    └── Start application port-forward

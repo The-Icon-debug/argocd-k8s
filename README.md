@@ -73,6 +73,8 @@ argocd-demo/
 │
 ├── setup.sh
 │
+├── deploy.sh
+│
 ├── user_app_secret.yaml
 └── README.md
 ```
