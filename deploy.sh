@@ -20,8 +20,8 @@ APP_MANIFEST="argocd/application.yaml"
 APP_PORT="4000"
 LOCAL_APP_PORT="4000"
 
-TIMEOUT="600"
-POLL_INTERVAL="5"
+TIMEOUT="780"
+POLL_INTERVAL="30"
 
 # -----------------------------
 # Logging

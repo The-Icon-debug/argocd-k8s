@@ -78,8 +78,26 @@ argocd-demo/
 ├── user_app_secret.yaml
 └── README.md
 ```
-
 ---
+
+## Docker Image
+
+The `user-app` Deployment references:
+
+```text
+iconickyle/user-app:v1.0.0
+```
+This image is hosted in a private Docker registry and is therefore not
+available to users without access to the repository.
+
+To run the application locally, build and push your own image or use an existing image in the 
+public Docker registry, mongo-express for instance:
+https://hub.docker.com/_/mongo-express
+
+Then update the image reference in:
+```
+k8s/user-app-deployment.yaml
+```
 
 ## Prerequisites
 
