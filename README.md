@@ -137,6 +137,26 @@ https://localhost:8080
 
 ---
 
+## Application Deployment
+
+The `deploy.sh` script automates the remaining application deployment steps:
+
+- Argo CD Git repository credentials
+- Application namespace creation
+- Application Secret deployment
+- Argo CD Application creation
+- Argo CD Application status verification
+- Application workload readiness checks
+- Application port-forwarding
+
+The actual secret files are maintained locally and are **not committed to Git**:
+
+```text
+argocd/argocd_git_secret.yaml
+user_app_secret.yaml
+```
+
+
 ## Private Git Repository Credentials
 
 The repository is private, so Argo CD requires Git credentials.
@@ -149,17 +169,7 @@ argocd/argocd_git_dummy_secret.yaml
 
 contains **dummy/example values only**.
 
-Update the values locally, then apply:
-
-```bash
-kubectl apply -f argocd/argocd_git_secret.yaml
-```
-
-Verify:
-
-```bash
-kubectl get secrets -n argocd
-```
+Update the values locally, before executing the deploy.sh script: argocd/argocd_git_secret.yaml.
 
 ---
 
@@ -175,57 +185,22 @@ user_app_dummy_secret.yaml
 
 contains **dummy/example values only**.
 
-Apply the secret manually:
-
-```bash
-kubectl create namespace user-app
-kubectl apply -f user_app_secret.yaml
-```
-
-Verify:
-
-```bash
-kubectl get ns
-kubectl get secret -n user-app
-```
+Update the values locally, before executing the deploy.sh script: user_app_secret.yaml
 
 ---
 
 ## Deploy the Application
 
-Create the Argo CD Application:
+Create the Argo CD Application: The deploy.sh handles the deployment by applying the argocd application 
+manifest.
 
-kubectl apply is still required once to create the Argo CD Application resource. 
 After that, Argo CD takes over management of the application's Kubernetes resources.
-
-```bash
-kubectl apply -f argocd/application.yaml
-```
-
-Verify:
-
-```bash
-kubectl get applications -n argocd
-```
-
-Expected:
-
-```text
-NAME             SYNC STATUS   HEALTH STATUS
-node-mongo-app   Synced        Healthy
-```
-
-Inspect the deployed resources:
-
-```bash
-kubectl get all -n user-app
-```
 
 ---
 
 ## Access the Application
 
-Port-forward the application service:
+Port-forward the application service: Handled by deploy.sh
 
 ```bash
 kubectl port-forward \
