@@ -125,10 +125,10 @@ The `setup.sh` script automates:
 - Tool validation
 - kind cluster creation
 - Argo CD namespace creation
-- Argo CD installation
+- Argo CD installation in the argocd ns
 - Argo CD readiness checks
 - Initial admin password retrieval
-- Argo CD UI port-forwarding
+- Argo CD port-forwarding: Access argocd from the UI or CLI
 
 Example:
 
