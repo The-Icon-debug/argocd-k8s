@@ -163,7 +163,7 @@ info "Configuration:"
 echo "  ArgoCD namespace:       ${ARGOCD_NAMESPACE}"
 echo "  Application name:       ${APP_NAME}"
 echo "  Application namespace:  ${APP_NAMESPACE}"
-echo "  Git credentials:        ${GIT_SECRET_FILE}"
+# echo "  Git credentials:        ${GIT_SECRET_FILE}"
 echo "  Application secret:     ${APP_SECRET_FILE}"
 echo "  Application manifest:   ${APP_MANIFEST}"
 echo "  Application port:       ${LOCAL_APP_PORT}:${APP_PORT}"
@@ -218,7 +218,7 @@ success "Argo CD namespace exists."
 info "Checking required manifest files..."
 
 required_files=(
-    "${GIT_SECRET_FILE}"
+    # "${GIT_SECRET_FILE}"
     "${APP_SECRET_FILE}"
     "${APP_MANIFEST}"
 )
@@ -238,28 +238,28 @@ done
 # Configure Argo CD Git credentials
 # ============================================================
 
-echo
-info "Configuring Argo CD Git repository credentials..."
+# echo
+# info "Configuring Argo CD Git repository credentials..."
 
-kubectl apply -f "${GIT_SECRET_FILE}"
+# kubectl apply -f "${GIT_SECRET_FILE}"
 
-success "Argo CD Git credentials applied."
+# success "Argo CD Git credentials applied."
 
 # ============================================================
 # Verify Git credentials Secret
 # ============================================================
 
-info "Verifying Argo CD Git credentials..."
+# info "Verifying Argo CD Git credentials..."
 
-if ! kubectl get secret -n "${ARGOCD_NAMESPACE}" \
-    -l "argocd.argoproj.io/secret-type=repository" \
-    >/dev/null 2>&1; then
+# if ! kubectl get secret -n "${ARGOCD_NAMESPACE}" \
+#     -l "argocd.argoproj.io/secret-type=repository" \
+#     >/dev/null 2>&1; then
 
-    error "Argo CD repository credentials could not be verified."
-    exit 1
-fi
+#     error "Argo CD repository credentials could not be verified."
+#     exit 1
+# fi
 
-success "Argo CD Git credentials verified."
+# success "Argo CD Git credentials verified."
 
 # ============================================================
 # Create application namespace
