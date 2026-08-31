@@ -7,7 +7,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://gridirontest.com/modules/argocd-demo.git
+    repoURL: https://github.com/The-Icon-debug/argocd-k8s.git
     targetRevision: main
     path: k8s
 
