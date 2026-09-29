@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-app
+  name: user-app-deployment
   namespace: user-app
 spec:
   replicas: 2
@@ -32,14 +32,14 @@ spec:
 
           readinessProbe:
             httpGet:
-              path: /health
+              path: /health/ready
               port: 4000
             initialDelaySeconds: 5
             periodSeconds: 5
 
           livenessProbe:
             httpGet:
-              path: /health
+              path: /health/live
               port: 4000
             initialDelaySeconds: 10
             periodSeconds: 10
