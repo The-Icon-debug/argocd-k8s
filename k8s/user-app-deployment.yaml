@@ -23,6 +23,9 @@ spec:
           ports:
             - containerPort: 4000
 
+          resources: {}
+          securityContext: {}
+
           envFrom:
             - configMapRef:
                 name: user-app-config
