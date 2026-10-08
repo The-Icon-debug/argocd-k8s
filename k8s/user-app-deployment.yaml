@@ -18,6 +18,8 @@ spec:
       labels:
         app: user-app
     spec:
+      securityContext:
+        fsGroup: 2000
       initContainers:
       - image: busybox:latest
         name: check-mongo-dns
@@ -43,7 +45,6 @@ spec:
           runAsUser: 1000
           runAsGroup: 3000
           runAsNonRoot: true
-          fsGroup: 2000
           capabilities:
             drop:
               - ALL
