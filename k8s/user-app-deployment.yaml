@@ -36,7 +36,7 @@ spec:
               key: MONGO_PORT
         command: ["/bin/sh", "-c", "until nc -z $MONGO_SVC $MONGO_PORT; do echo 'checking mongo db service port'; sleep 10; done"]
       containers:
-      - image: iconickyle/user-app:v1.0.0
+      - image: iconickyle/user-app:c54f4f6734a4a16666089400ece0ec458f4eeed5
         name: user-app
         ports:
         - containerPort: 4000

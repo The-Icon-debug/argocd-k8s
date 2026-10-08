@@ -9,3 +9,5 @@ nodes:
   - role: worker
 
   - role: worker
+
+# kind create cluster --config kind-multinode.yaml
