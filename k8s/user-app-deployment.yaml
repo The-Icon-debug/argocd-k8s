@@ -5,44 +5,62 @@ metadata:
   namespace: user-app
 spec:
   replicas: 2
-
   selector:
     matchLabels:
       app: user-app
-
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: user-app
-
     spec:
+      initContainers:
+      - image: busybox:latest
+        name: check-mongo-dns
+        env:
+        - name: MONGO_SVC
+          valueFrom:
+            configMapKeyRef:
+              name: user-app-config
+              key: MONGO_SVC
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: user-app-config
+              key: MONGO_PORT
+        command: ["/bin/sh", "-c", "until nc -z $MONGO_SVC $MONGO_PORT; do echo 'checking mongo db service port'; sleep 10; done"]
       containers:
-        - name: user-app
-          image: iconickyle/user-app:v1.0.0
-
-          ports:
-            - containerPort: 4000
-
-          resources: {}
-          securityContext: {}
-
-          envFrom:
-            - configMapRef:
-                name: user-app-config
-
-            - secretRef:
-                name: user-app-secret
-
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: 4000
-            initialDelaySeconds: 5
-            periodSeconds: 5
-
-          livenessProbe:
-            httpGet:
-              path: /health/live
-              port: 4000
-            initialDelaySeconds: 10
-            periodSeconds: 10
+      - image: iconickyle/user-app:v1.0.0
+        name: user-app
+        ports:
+        - containerPort: 4000
+        resources: {}
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 3000
+          runAsNonRoot: true
+          fsGroup: 2000
+          capabilities:
+            drop:
+              - ALL
+        envFrom:
+        - configMapRef:
+            name: user-app-config
+        - secretRef:
+            name: user-app-secret
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 4000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 4000
+          initialDelaySeconds: 10
+          periodSeconds: 10
